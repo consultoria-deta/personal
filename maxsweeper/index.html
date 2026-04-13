@@ -4,264 +4,255 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Maxsweeper 🐾</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    /* Spotify-inspired dark + Max amber */
-    --bg:           #121212;
-    --surface:      #181818;
-    --surface-2:    #1f1f1f;
-    --surface-3:    #242424;
-    --cell-hidden:  #2a2420;
-    --cell-hover:   #3a3028;
-    --cell-rev:     #1a1614;
-    --amber:        #D97706;
-    --amber-bright: #F59E0B;
-    --amber-glow:   rgba(217,119,6,0.25);
-    --amber-dim:    #92400E;
-    --red:          #ef4444;
-    --text:         #ffffff;
-    --text-secondary: #a8a29e;
-    --text-muted:   #6b7280;
-    --border:       #2a2520;
-    --border-light: rgba(255,255,255,0.06);
+    --bg:           #0e0d0c;
+    --surface:      #1a1917;
+    --surface-2:    #222019;
+    --surface-3:    #2c2a22;
+    --cell-hidden:  #252218;
+    --cell-hover:   #332f22;
+    --cell-rev:     #141310;
+    --gold:         #C8922A;   /* warm honey-gold — Max's actual eye color */
+    --gold-bright:  #DBA84A;
+    --gold-glow:    rgba(200,146,42,0.18);
+    --gold-dim:     #7a5818;
+    --red:          #c84b3c;
+    --text:         #f0ece4;
+    --text-2:       #9a9488;
+    --text-muted:   #5a5650;
+    --border:       rgba(255,255,255,0.05);
+    --font-display: 'Syne', system-ui, sans-serif;
+    --font-mono:    'Space Mono', monospace;
     --font:         system-ui, -apple-system, sans-serif;
-    --cell-size:    38px;
-    --cell-font:    15px;
-    --gap:          3px;
   }
 
-  html, body { height: 100%; }
+  html { height: 100%; }
 
   body {
     font-family: var(--font);
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 28px 16px 48px;
+    padding: 20px 14px 36px;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
 
-  /* ── Logo SVG ───────────────────────────────── */
-  .logo-wrap {
+  /* ── Logo ─────────────────────────────────────── */
+  .logo-row {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    margin-bottom: 28px;
-    gap: 12px;
+    gap: 14px;
+    margin-bottom: 18px;
   }
 
-  .logo-svg {
-    width: 72px;
-    height: 72px;
-    filter: drop-shadow(0 0 18px var(--amber-glow));
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  .logo-icon {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 12px var(--gold-glow));
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    cursor: default;
   }
-  .logo-svg:hover { transform: scale(1.08) rotate(-3deg); }
+  .logo-icon:hover { transform: rotate(-8deg) scale(1.1); }
+
+  .logo-text-wrap { display: flex; flex-direction: column; gap: 2px; }
 
   .logo-title {
-    display: flex;
-    align-items: baseline;
-    gap: 1px;
-    font-size: clamp(28px, 7vw, 44px);
-    font-weight: 900;
+    font-family: var(--font-display);
+    font-size: clamp(22px, 6vw, 34px);
+    font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
+    color: var(--text);
   }
-  .logo-title .t1 { color: var(--text); }
-  .logo-title .t2 { color: var(--amber); }
+  .logo-title em { color: var(--gold); font-style: normal; }
 
   .logo-sub {
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
     color: var(--text-muted);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    font-weight: 600;
+    letter-spacing: 0.06em;
   }
 
-  /* ── Difficulty pills ───────────────────────── */
+  /* ── Difficulty ───────────────────────────────── */
   .diff-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 6px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
     justify-content: center;
   }
 
   .diff-btn {
-    padding: 8px 18px;
+    padding: 7px 15px;
     border-radius: 9999px;
-    border: 1.5px solid var(--border);
+    border: 1px solid var(--border);
     background: var(--surface-2);
-    color: var(--text-secondary);
-    font-size: 13px;
+    color: var(--text-2);
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     cursor: pointer;
-    transition: all 0.15s;
-    font-family: var(--font);
+    transition: all 0.14s;
+    font-family: var(--font-display);
   }
-  .diff-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .diff-btn:hover { border-color: var(--gold); color: var(--gold); }
   .diff-btn.active {
-    background: var(--amber);
-    border-color: var(--amber);
-    color: #000;
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #0e0d0c;
   }
 
-  /* ── HUD ────────────────────────────────────── */
+  /* ── HUD ──────────────────────────────────────── */
   .hud {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
     width: 100%;
-    max-width: 480px;
+    max-width: 440px;
     background: var(--surface);
-    border-radius: 16px;
-    padding: 14px 18px;
-    margin-bottom: 16px;
-    border: 1px solid var(--border-light);
-    box-shadow: rgba(0,0,0,0.5) 0px 8px 24px;
+    border-radius: 14px;
+    padding: 11px 18px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    gap: 8px;
   }
 
   .hud-stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 56px;
-    gap: 2px;
+    gap: 1px;
+    min-width: 48px;
   }
   .hud-val {
-    font-size: 22px;
-    font-weight: 900;
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
     color: var(--text);
     line-height: 1;
-    font-variant-numeric: tabular-nums;
   }
-  .hud-val.amber { color: var(--amber); }
+  .hud-val.gold { color: var(--gold); }
   .hud-label {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--text-muted);
   }
 
   .reset-btn {
-    width: 48px; height: 48px;
+    width: 42px; height: 42px;
     border-radius: 50%;
-    border: 2px solid var(--border-light);
+    border: 1px solid var(--border);
     background: var(--surface-2);
-    font-size: 24px;
+    font-size: 20px;
     cursor: pointer;
     transition: all 0.15s cubic-bezier(0.34,1.56,0.64,1);
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
   }
-  .reset-btn:hover {
-    background: var(--amber-glow);
-    border-color: var(--amber);
-    transform: scale(1.1) rotate(10deg);
-  }
+  .reset-btn:hover { background: var(--gold-glow); border-color: var(--gold); transform: scale(1.12) rotate(12deg); }
   .reset-btn:active { transform: scale(0.92); }
 
-  /* ── Flag mode toggle (mobile) ──────────────── */
-  .flag-toggle-wrap {
+  /* ── Flag toggle (touch) ──────────────────────── */
+  .flag-row {
     display: none;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     justify-content: center;
   }
-  @media (hover: none) {
-    .flag-toggle-wrap { display: flex; }
-  }
+  @media (hover: none) { .flag-row { display: flex; } }
 
-  .flag-toggle {
+  .flag-btn {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     background: var(--surface);
-    border: 1.5px solid var(--border-light);
+    border: 1px solid var(--border);
     border-radius: 9999px;
-    padding: 8px 20px;
-    font-size: 13px;
+    padding: 7px 18px;
+    font-size: 11px;
     font-weight: 700;
-    color: var(--text-secondary);
+    color: var(--text-2);
     cursor: pointer;
-    transition: all 0.15s;
-    font-family: var(--font);
-    letter-spacing: 0.06em;
+    transition: all 0.14s;
+    font-family: var(--font-display);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .flag-toggle.flag-mode {
-    background: var(--amber-glow);
-    border-color: var(--amber);
-    color: var(--amber);
-  }
-  .flag-toggle-icon { font-size: 18px; }
+  .flag-btn.on { background: var(--gold-glow); border-color: var(--gold); color: var(--gold); }
 
-  /* ── Board ──────────────────────────────────── */
+  /* ── Board ────────────────────────────────────── */
   .board-outer {
     width: 100%;
+    max-width: 100vw;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
+    display: flex;
+    justify-content: center;
   }
 
   .board-wrap {
     display: inline-block;
     background: var(--surface);
-    border-radius: 16px;
-    padding: 14px;
+    border-radius: 14px;
+    padding: 12px;
     box-shadow:
-      rgba(0,0,0,0.5) 0px 8px 24px,
-      rgba(0,0,0,0.3) 0px 2px 8px,
-      0 0 0 1px var(--border-light);
-    min-width: min-content;
+      0 0 0 1px var(--border),
+      0 8px 32px rgba(0,0,0,0.5);
+    flex-shrink: 0;
   }
 
   #board {
     display: grid;
-    gap: var(--gap);
+    gap: 2px;
     user-select: none;
     touch-action: none;
   }
 
   .cell {
-    width: var(--cell-size);
-    height: var(--cell-size);
-    border-radius: 6px;
+    /* --cs set by JS per difficulty+viewport */
+    width: var(--cs, 34px);
+    height: var(--cs, 34px);
+    border-radius: 5px;
     background: var(--cell-hidden);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--cell-font);
     font-weight: 900;
+    font-size: calc(var(--cs, 34px) * 0.42);
     cursor: pointer;
-    transition: background 0.1s, transform 0.08s;
-    position: relative;
+    transition: background 0.09s, transform 0.07s;
     border: 1px solid rgba(255,255,255,0.03);
     -webkit-tap-highlight-color: transparent;
+    position: relative;
   }
-
-  .cell::before {
+  .cell::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
-    border-radius: 5px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, transparent 55%);
+    border-radius: 4px;
     pointer-events: none;
   }
 
-  .cell:hover:not(.revealed):not([data-state="dead"]) {
-    background: var(--cell-hover);
-    transform: scale(1.07);
-    z-index: 2;
-    border-color: rgba(217,119,6,0.2);
+  .cell:active:not(.revealed) { transform: scale(0.9); }
+
+  @media (hover: hover) {
+    .cell:hover:not(.revealed) {
+      background: var(--cell-hover);
+      transform: scale(1.06);
+      z-index: 2;
+    }
   }
 
   .cell.revealed {
@@ -269,749 +260,600 @@
     cursor: default;
     border-color: rgba(255,255,255,0.02);
   }
-  .cell.revealed::before { display: none; }
+  .cell.revealed::after { display: none; }
 
-  .cell.flagged { font-size: calc(var(--cell-size) * 0.5); }
-  .cell.flagged::before { display: none; }
+  .cell.mine-hit { background: #5c1a14 !important; border-color: var(--red) !important; animation: explode .35s ease; }
+  .cell.mine-all { background: #1e1310 !important; }
 
-  .cell.mine-hit {
-    background: #7f1d1d !important;
-    border-color: var(--red) !important;
-    animation: explode 0.4s ease;
-  }
-  .cell.mine-revealed {
-    background: #1c1210 !important;
-    opacity: 0.8;
-  }
-  .cell.wrong-flag {
-    background: #7f1d1d !important;
-  }
+  .n1 { color: #6cb4f5; }
+  .n2 { color: #52d68a; }
+  .n3 { color: #f07070; }
+  .n4 { color: #8b90f0; }
+  .n5 { color: #f0914a; }
+  .n6 { color: #38d4c8; }
+  .n7 { color: #e8a0f0; }
+  .n8 { color: #7a7870; }
 
-  /* Number colors — warm-adjusted for dark bg */
-  .n1 { color: #60a5fa; }
-  .n2 { color: #4ade80; }
-  .n3 { color: #f87171; }
-  .n4 { color: #818cf8; }
-  .n5 { color: #fb923c; }
-  .n6 { color: #34d399; }
-  .n7 { color: #f0abfc; }
-  .n8 { color: #94a3b8; }
-
-  /* ── Mine progress section ──────────────────── */
-  .mine-progress {
+  /* ── Progress ─────────────────────────────────── */
+  .progress-wrap {
     width: 100%;
-    max-width: 480px;
+    max-width: 440px;
     background: var(--surface);
     border-radius: 14px;
-    padding: 16px 20px;
-    margin-top: 16px;
-    border: 1px solid var(--border-light);
-    box-shadow: rgba(0,0,0,0.3) 0px 4px 12px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    border: 1px solid var(--border);
   }
 
-  .progress-header {
+  .prog-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
-  .progress-label {
-    font-size: 11px;
+  .prog-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--text-muted);
   }
-  .progress-nums {
-    font-size: 12px;
+  .prog-frac {
+    font-family: var(--font-mono);
+    font-size: 11px;
     font-weight: 700;
-    color: var(--text-secondary);
+    color: var(--text-2);
   }
-  .progress-nums span { color: var(--amber); }
+  .prog-frac b { color: var(--gold); }
 
-  .progress-track {
-    height: 6px;
+  .prog-bar {
+    height: 4px;
     background: var(--surface-3);
     border-radius: 9999px;
     overflow: hidden;
     margin-bottom: 12px;
   }
-  .progress-fill {
+  .prog-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright));
     border-radius: 9999px;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.35s cubic-bezier(0.4,0,0.2,1);
     width: 0%;
   }
 
-  .progress-items {
-    display: flex;
-    justify-content: space-between;
+  .prog-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
-  .progress-item {
-    flex: 1;
+  .prog-stat {
     background: var(--surface-2);
-    border-radius: 10px;
-    padding: 10px 12px;
+    border-radius: 9px;
+    padding: 9px 10px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    border: 1px solid var(--border-light);
+    gap: 7px;
+    border: 1px solid var(--border);
   }
-  .progress-item-icon { font-size: 18px; flex-shrink: 0; }
-  .progress-item-info { display: flex; flex-direction: column; gap: 1px; }
-  .progress-item-val {
-    font-size: 18px;
-    font-weight: 900;
+  .prog-stat-icon { font-size: 16px; flex-shrink: 0; }
+  .prog-stat-val {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
     color: var(--text);
     line-height: 1;
-    font-variant-numeric: tabular-nums;
   }
-  .progress-item-val.amber { color: var(--amber); }
-  .progress-item-label {
-    font-size: 10px;
+  .prog-stat-val.gold { color: var(--gold); }
+  .prog-stat-lbl {
+    font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--text-muted);
+    margin-top: 2px;
   }
 
-  /* ── Win/Lose overlay ───────────────────────── */
+  /* ── Overlay ──────────────────────────────────── */
   .overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.82);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: rgba(10,9,8,0.88);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
     z-index: 100;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.22s;
   }
-  .overlay.visible { opacity: 1; pointer-events: all; }
+  .overlay.on { opacity: 1; pointer-events: all; }
 
   .modal {
     background: var(--surface);
     border-radius: 20px;
-    padding: 36px 40px;
+    padding: 32px 36px;
     text-align: center;
-    box-shadow:
-      rgba(0,0,0,0.5) 0px 24px 64px,
-      0 0 0 1px var(--border-light);
-    max-width: 320px;
-    width: 90%;
-    transform: scale(0.88);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px var(--border);
+    max-width: 300px; width: 88%;
+    transform: scale(0.88) translateY(12px);
     transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
   }
-  .overlay.visible .modal { transform: scale(1); }
+  .overlay.on .modal { transform: scale(1) translateY(0); }
 
-  .modal-icon { font-size: 56px; margin-bottom: 14px; display: block; line-height: 1; }
+  .modal-icon { font-size: 52px; display: block; margin-bottom: 12px; line-height: 1; }
   .modal-title {
-    font-size: 24px;
-    font-weight: 900;
-    margin-bottom: 8px;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.02em; margin-bottom: 8px;
   }
-  .modal-title.win { color: var(--amber); }
-  .modal-title.lose { color: var(--text); }
-  .modal-sub {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
-  .modal-stats {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin-bottom: 24px;
-    padding: 14px 0;
-    border-top: 1px solid var(--border-light);
-    border-bottom: 1px solid var(--border-light);
-  }
-  .modal-stat-val {
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--amber);
-    line-height: 1;
-  }
-  .modal-stat-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-top: 4px;
-  }
+  .modal-title.win { color: var(--gold); }
+  .modal-sub { color: var(--text-2); font-size: 13px; margin-bottom: 18px; line-height: 1.6; }
 
-  .play-again {
-    background: var(--amber);
-    color: #000;
+  .modal-nums {
+    display: flex; justify-content: center; gap: 24px;
+    padding: 14px 0; margin-bottom: 18px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-num { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .modal-num-val { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--gold); }
+  .modal-num-lbl { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+
+  .play-btn {
+    background: var(--gold);
+    color: #0e0d0c;
     border: none;
-    padding: 14px 28px;
+    padding: 13px 24px;
     border-radius: 9999px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     cursor: pointer;
-    font-family: var(--font);
-    transition: all 0.15s;
+    font-family: var(--font-display);
+    transition: all 0.14s;
     width: 100%;
   }
-  .play-again:hover { background: var(--amber-bright); transform: translateY(-1px); }
-  .play-again:active { transform: translateY(0); }
+  .play-btn:hover { background: var(--gold-bright); transform: translateY(-1px); }
+  .play-btn:active { transform: translateY(0); }
 
-  /* ── Confetti ───────────────────────────────── */
-  .confetti-piece {
-    position: fixed;
-    pointer-events: none;
-    z-index: 200;
-    animation: confettiFall linear forwards;
+  /* ── Confetti ─────────────────────────────────── */
+  .paw {
+    position: fixed; pointer-events: none; z-index: 200;
+    animation: pawFall linear forwards;
   }
-  @keyframes confettiFall {
+  @keyframes pawFall {
     0%   { transform: translateY(-30px) rotate(0deg) scale(1); opacity: 1; }
-    80%  { opacity: 1; }
-    100% { transform: translateY(105vh) rotate(800deg) scale(0.4); opacity: 0; }
+    85%  { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg) scale(0.3); opacity: 0; }
   }
 
-  /* ── Animations ─────────────────────────────── */
   @keyframes explode {
-    0%   { transform: scale(1); }
-    30%  { transform: scale(1.3); }
-    60%  { transform: scale(0.9); }
-    100% { transform: scale(1); }
+    0%, 100% { transform: scale(1); }
+    40%       { transform: scale(1.35); }
+    70%       { transform: scale(0.88); }
   }
 
-  @keyframes revealPop {
-    0%   { transform: scale(0.85); opacity: 0.5; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .cell.just-revealed { animation: revealPop 0.12s ease-out; }
-
-  /* ── Footer ─────────────────────────────────── */
+  /* ── Footer ───────────────────────────────────── */
   footer {
-    margin-top: 28px;
-    font-size: 12px;
+    margin-top: 20px;
+    font-family: var(--font-mono);
+    font-size: 10px;
     color: var(--text-muted);
     text-align: center;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
   }
-  footer span { color: var(--amber); }
-
-  /* ── Responsive ─────────────────────────────── */
-  @media (max-width: 420px) {
-    :root { --cell-size: 30px; --cell-font: 12px; --gap: 2px; }
-    body { padding: 16px 10px 40px; }
-    .hud { padding: 12px 14px; }
-    .logo-svg { width: 56px; height: 56px; }
-    .mine-progress { padding: 12px 14px; }
-    .progress-item { padding: 8px 10px; }
-  }
+  footer b { color: var(--gold); font-weight: 400; }
 </style>
 </head>
 <body>
 
-<!-- ── Logo ──────────────────────────────────────────── -->
-<div class="logo-wrap">
-  <!-- Max SVG logo: black dog face, amber eyes -->
-  <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Max the dog logo">
-    <!-- Left ear -->
-    <ellipse cx="22" cy="42" rx="14" ry="22" fill="#1a1210" transform="rotate(-12, 22, 42)"/>
-    <ellipse cx="22" cy="44" rx="10" ry="17" fill="#2a1e16" transform="rotate(-12, 22, 44)"/>
+<!-- Logo row -->
+<div class="logo-row">
+  <!-- Max SVG: border collie — simple iconic dog face, not a lemur -->
+  <svg class="logo-icon" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Left ear (floppy, hangs low) -->
+    <ellipse cx="18" cy="38" rx="11" ry="18" fill="#1a1512" rx="11"/>
+    <ellipse cx="18" cy="39" rx="7.5" ry="13" fill="#251e18"/>
     <!-- Right ear -->
-    <ellipse cx="78" cy="42" rx="14" ry="22" fill="#1a1210" transform="rotate(12, 78, 42)"/>
-    <ellipse cx="78" cy="44" rx="10" ry="17" fill="#2a1e16" transform="rotate(12, 78, 44)"/>
+    <ellipse cx="62" cy="38" rx="11" ry="18" fill="#1a1512"/>
+    <ellipse cx="62" cy="39" rx="7.5" ry="13" fill="#251e18"/>
     <!-- Head -->
-    <circle cx="50" cy="52" r="34" fill="#1a1210"/>
-    <!-- Fur texture -->
-    <circle cx="50" cy="52" r="34" fill="url(#furGrad)" opacity="0.4"/>
-    <!-- Forehead highlight -->
-    <ellipse cx="50" cy="32" rx="16" ry="10" fill="#2d231a" opacity="0.6"/>
-    <!-- Left eye white -->
-    <circle cx="37" cy="48" r="10" fill="#1c1410"/>
-    <circle cx="37" cy="48" r="8" fill="#0d0a08"/>
-    <!-- Left iris -->
-    <circle cx="37" cy="48" r="6.5" fill="#D97706"/>
-    <circle cx="37" cy="48" r="4.5" fill="#92400E"/>
-    <circle cx="37" cy="48" r="3" fill="#0d0a08"/>
-    <!-- Left eye shine -->
-    <circle cx="39.5" cy="45.5" r="1.8" fill="rgba(255,255,255,0.85)"/>
-    <circle cx="35.5" cy="50" r="0.9" fill="rgba(255,255,255,0.4)"/>
-    <!-- Right eye white -->
-    <circle cx="63" cy="48" r="10" fill="#1c1410"/>
-    <circle cx="63" cy="48" r="8" fill="#0d0a08"/>
-    <!-- Right iris -->
-    <circle cx="63" cy="48" r="6.5" fill="#D97706"/>
-    <circle cx="63" cy="48" r="4.5" fill="#92400E"/>
-    <circle cx="63" cy="48" r="3" fill="#0d0a08"/>
-    <!-- Right eye shine -->
-    <circle cx="65.5" cy="45.5" r="1.8" fill="rgba(255,255,255,0.85)"/>
-    <circle cx="61.5" cy="50" r="0.9" fill="rgba(255,255,255,0.4)"/>
-    <!-- Snout area -->
-    <ellipse cx="50" cy="64" rx="16" ry="11" fill="#231915"/>
+    <circle cx="40" cy="38" r="26" fill="#1e1a14"/>
+    <!-- Forehead fur shading -->
+    <ellipse cx="40" cy="26" rx="14" ry="9" fill="#2a2418" opacity="0.7"/>
+    <!-- White blaze (border collie trait — narrow stripe down face) -->
+    <ellipse cx="40" cy="50" rx="9" ry="12" fill="#2e2820"/>
+    <!-- Left eye socket -->
+    <ellipse cx="30" cy="37" rx="6" ry="5.5" fill="#141210"/>
+    <!-- Left eye iris — warm amber, not neon orange -->
+    <ellipse cx="30" cy="37" rx="4.2" ry="4" fill="#7C5A1E"/>
+    <ellipse cx="30" cy="37" rx="2.8" ry="2.6" fill="#111009"/>
+    <circle cx="31.4" cy="35.6" r="1.2" fill="rgba(255,255,255,0.7)"/>
+    <!-- Right eye socket -->
+    <ellipse cx="50" cy="37" rx="6" ry="5.5" fill="#141210"/>
+    <!-- Right eye iris -->
+    <ellipse cx="50" cy="37" rx="4.2" ry="4" fill="#7C5A1E"/>
+    <ellipse cx="50" cy="37" rx="2.8" ry="2.6" fill="#111009"/>
+    <circle cx="51.4" cy="35.6" r="1.2" fill="rgba(255,255,255,0.7)"/>
+    <!-- Muzzle / snout -->
+    <ellipse cx="40" cy="52" rx="11" ry="8" fill="#171411"/>
     <!-- Nose -->
-    <ellipse cx="50" cy="60" rx="7" ry="5" fill="#0d0a08"/>
-    <ellipse cx="50" cy="59" rx="5.5" ry="3.5" fill="#1a1210"/>
-    <!-- Nose shine -->
-    <ellipse cx="48" cy="57.5" rx="2" ry="1.2" fill="rgba(255,255,255,0.2)"/>
-    <!-- Mouth -->
-    <path d="M 43 66 Q 50 71 57 66" stroke="#0d0a08" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-    <!-- White chest patch -->
-    <ellipse cx="50" cy="80" rx="8" ry="5" fill="#2a211a" opacity="0.5"/>
-    <defs>
-      <radialGradient id="furGrad" cx="50%" cy="30%" r="60%">
-        <stop offset="0%" stop-color="#3d2e22"/>
-        <stop offset="100%" stop-color="#0d0a08"/>
-      </radialGradient>
-    </defs>
+    <ellipse cx="40" cy="48" rx="5.5" ry="3.8" fill="#0d0b09"/>
+    <ellipse cx="39" cy="46.8" rx="2" ry="1" fill="rgba(255,255,255,0.15)"/>
+    <!-- Mouth line -->
+    <path d="M 35.5 53.5 Q 40 57.5 44.5 53.5" stroke="#0d0b09" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <!-- Chin -->
+    <ellipse cx="40" cy="60" rx="5" ry="3" fill="#1a1714" opacity="0.5"/>
   </svg>
 
-  <div class="logo-title">
-    <span class="t1">Max</span><span class="t2">sweeper</span>
+  <div class="logo-text-wrap">
+    <div class="logo-title">Max<em>sweeper</em></div>
+    <div class="logo-sub">hold to flag · right-click to flag</div>
   </div>
-  <div class="logo-sub">feat. Max · right-click or hold to flag</div>
 </div>
 
-<!-- ── Difficulty ────────────────────────────────────── -->
+<!-- Difficulty -->
 <div class="diff-row">
   <button class="diff-btn active" data-diff="puppy">🐶 Puppy</button>
   <button class="diff-btn" data-diff="doggo">🐕 Doggo</button>
   <button class="diff-btn" data-diff="max">💀 Max Mode</button>
 </div>
 
-<!-- ── HUD ───────────────────────────────────────────── -->
+<!-- HUD -->
 <div class="hud">
   <div class="hud-stat">
-    <div class="hud-val amber" id="mine-count">10</div>
+    <div class="hud-val gold" id="mine-count">10</div>
     <div class="hud-label">Mines</div>
   </div>
-  <button class="reset-btn" id="reset-btn" title="New game">🐾</button>
+  <button class="reset-btn" id="reset-btn">🐾</button>
   <div class="hud-stat">
     <div class="hud-val" id="timer">0</div>
     <div class="hud-label">Seconds</div>
   </div>
 </div>
 
-<!-- ── Flag toggle (touch devices) ──────────────────── -->
-<div class="flag-toggle-wrap">
-  <button class="flag-toggle" id="flag-toggle">
-    <span class="flag-toggle-icon">👆</span>
-    <span id="flag-toggle-label">Reveal mode</span>
+<!-- Flag toggle (touch only) -->
+<div class="flag-row">
+  <button class="flag-btn" id="flag-btn">
+    <span id="flag-icon">👆</span>
+    <span id="flag-lbl">REVEAL MODE</span>
   </button>
 </div>
 
-<!-- ── Board ─────────────────────────────────────────── -->
+<!-- Board -->
 <div class="board-outer">
   <div class="board-wrap">
     <div id="board"></div>
   </div>
 </div>
 
-<!-- ── Mine progress ─────────────────────────────────── -->
-<div class="mine-progress">
-  <div class="progress-header">
-    <span class="progress-label">Mines discovered</span>
-    <span class="progress-nums"><span id="prog-flagged">0</span> / <span id="prog-total">10</span></span>
+<!-- Mine progress -->
+<div class="progress-wrap">
+  <div class="prog-top">
+    <span class="prog-label">Mines found</span>
+    <span class="prog-frac"><b id="p-flagged">0</b> / <span id="p-total">10</span></span>
   </div>
-  <div class="progress-track">
-    <div class="progress-fill" id="progress-fill"></div>
-  </div>
-  <div class="progress-items">
-    <div class="progress-item">
-      <span class="progress-item-icon">🐾</span>
-      <div class="progress-item-info">
-        <div class="progress-item-val amber" id="prog-flagged-big">0</div>
-        <div class="progress-item-label">Flagged</div>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+  <div class="prog-stats">
+    <div class="prog-stat">
+      <span class="prog-stat-icon">🐾</span>
+      <div>
+        <div class="prog-stat-val gold" id="ps-flagged">0</div>
+        <div class="prog-stat-lbl">Flagged</div>
       </div>
     </div>
-    <div class="progress-item">
-      <span class="progress-item-icon">🐶</span>
-      <div class="progress-item-info">
-        <div class="progress-item-val" id="prog-remaining-big">10</div>
-        <div class="progress-item-label">Remaining</div>
+    <div class="prog-stat">
+      <span class="prog-stat-icon">🐶</span>
+      <div>
+        <div class="prog-stat-val" id="ps-left">10</div>
+        <div class="prog-stat-lbl">Remaining</div>
       </div>
     </div>
-    <div class="progress-item">
-      <span class="progress-item-icon">⏱</span>
-      <div class="progress-item-info">
-        <div class="progress-item-val" id="prog-revealed-big">0</div>
-        <div class="progress-item-label">Revealed</div>
+    <div class="prog-stat">
+      <span class="prog-stat-icon">🟫</span>
+      <div>
+        <div class="prog-stat-val" id="ps-revealed">0</div>
+        <div class="prog-stat-lbl">Revealed</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── Win/Lose overlay ──────────────────────────────── -->
+<footer>made for <b>Max</b> · a very good boy 🐾</footer>
+
+<!-- Overlay -->
 <div class="overlay" id="overlay">
   <div class="modal">
-    <span class="modal-icon" id="modal-icon">🐶</span>
-    <div class="modal-title" id="modal-title">You found Max!</div>
-    <div class="modal-sub" id="modal-sub">Max was hiding all along.</div>
-    <div class="modal-stats">
-      <div>
-        <div class="modal-stat-val" id="modal-time">0</div>
-        <div class="modal-stat-label">Seconds</div>
+    <span class="modal-icon" id="m-icon">🐶</span>
+    <div class="modal-title" id="m-title">Woof!</div>
+    <div class="modal-sub" id="m-sub">Max was right there.</div>
+    <div class="modal-nums">
+      <div class="modal-num">
+        <div class="modal-num-val" id="m-time">0</div>
+        <div class="modal-num-lbl">Seconds</div>
       </div>
-      <div>
-        <div class="modal-stat-val" id="modal-revealed">0</div>
-        <div class="modal-stat-label">Revealed</div>
+      <div class="modal-num">
+        <div class="modal-num-val" id="m-rev">0</div>
+        <div class="modal-num-lbl">Revealed</div>
       </div>
     </div>
-    <button class="play-again" id="play-again">Play Again 🐾</button>
+    <button class="play-btn" id="play-again">Play Again 🐾</button>
   </div>
 </div>
 
-<footer>Made for <span>Max</span> 🐾 · a very good boy</footer>
-
 <script>
-  // ── Config ─────────────────────────────────────────
-  const DIFFICULTIES = {
+  // ── Config ─────────────────────────────────────
+  const DIFFS = {
     puppy: { rows: 9,  cols: 9,  mines: 10 },
     doggo: { rows: 16, cols: 16, mines: 40 },
     max:   { rows: 16, cols: 30, mines: 99 },
   };
-  const NUM_COLORS = ['','n1','n2','n3','n4','n5','n6','n7','n8'];
+  const NCOLOR = ['','n1','n2','n3','n4','n5','n6','n7','n8'];
 
-  // ── State ──────────────────────────────────────────
+  // ── State ──────────────────────────────────────
   let board, rows, cols, totalMines;
-  let minesLeft, flaggedCount, revealedCount;
-  let gameOver, gameWon, firstClick;
-  let timerVal, timerHandle;
-  let currentDiff = 'puppy';
-  let flagMode = false; // mobile flag toggle
+  let minesLeft, flagged, revealed;
+  let dead, won, virgin;
+  let secs, ticker;
+  let diff = 'puppy';
+  let flagMode = false;
+  let longPress = null;
+  const LP = 420; // long-press ms
 
-  // Long press support
-  let longPressTimer = null;
-  const LONG_PRESS_MS = 450;
+  // ── DOM ────────────────────────────────────────
+  const $  = id => document.getElementById(id);
+  const boardEl   = $('board');
+  const overlay   = $('overlay');
+  const flagBtn   = $('flag-btn');
+  const flagIcon  = $('flag-icon');
+  const flagLbl   = $('flag-lbl');
 
-  // ── DOM ────────────────────────────────────────────
-  const boardEl        = document.getElementById('board');
-  const mineCountEl    = document.getElementById('mine-count');
-  const timerEl        = document.getElementById('timer');
-  const resetBtn       = document.getElementById('reset-btn');
-  const overlay        = document.getElementById('overlay');
-  const modalIcon      = document.getElementById('modal-icon');
-  const modalTitle     = document.getElementById('modal-title');
-  const modalSub       = document.getElementById('modal-sub');
-  const modalTimeEl    = document.getElementById('modal-time');
-  const modalRevealEl  = document.getElementById('modal-revealed');
-  const playAgain      = document.getElementById('play-again');
-  const flagToggle     = document.getElementById('flag-toggle');
-  const flagLabel      = document.getElementById('flag-toggle-label');
-  const progFlagged    = document.getElementById('prog-flagged');
-  const progTotal      = document.getElementById('prog-total');
-  const progressFill   = document.getElementById('progress-fill');
-  const progFlaggedBig = document.getElementById('prog-flagged-big');
-  const progRemaining  = document.getElementById('prog-remaining-big');
-  const progRevealed   = document.getElementById('prog-revealed-big');
+  // ── Cell size — fits viewport ──────────────────
+  function calcCellSize() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-  // ── Init ───────────────────────────────────────────
-  function newGame(diff) {
-    currentDiff = diff;
-    const cfg = DIFFICULTIES[diff];
-    rows = cfg.rows; cols = cfg.cols; totalMines = cfg.mines;
-    minesLeft = totalMines; flaggedCount = 0; revealedCount = 0;
-    gameOver = false; gameWon = false; firstClick = true;
+    // Horizontal: viewport - page padding - board padding - gaps
+    const hPad = 14 * 2 + 12 * 2; // page + board
+    const hGaps = (cols - 1) * 2;
+    const fromW = Math.floor((vw - hPad - hGaps) / cols);
 
-    stopTimer(); timerVal = 0;
-    timerEl.textContent = '0';
-    mineCountEl.textContent = minesLeft;
-    resetBtn.textContent = '🐾';
-    flagMode = false;
-    updateFlagToggle();
+    // Vertical: estimate chrome height above board
+    // logo ~72px, diff ~40px, hud ~60px, flag ~38px, gaps ~50px
+    const chromeAbove = 72 + 40 + 60 + 38 + 50;
+    // progress + footer ~130px, bottom padding 36px
+    const chromeBelow = 166;
+    const vAvail = vh - chromeAbove - chromeBelow;
+    const vGaps  = (rows - 1) * 2;
+    const fromH  = Math.floor((vAvail - vGaps) / rows);
 
-    board = Array.from({ length: rows }, () =>
-      Array.from({ length: cols }, () =>
-        ({ mine: false, revealed: false, flagged: false, count: 0 })
-      )
-    );
-
-    updateProgress();
-    renderBoard();
-    hideOverlay();
+    // Clamp: min 18px (readable), max 36px (not huge)
+    return Math.max(18, Math.min(36, fromW, fromH));
   }
 
-  // ── Mines ──────────────────────────────────────────
-  function placeMines(safeR, safeC) {
+  function applyCellSize() {
+    const cs = calcCellSize();
+    document.documentElement.style.setProperty('--cs', cs + 'px');
+  }
+
+  // ── New game ───────────────────────────────────
+  function newGame(d) {
+    diff = d;
+    const cfg = DIFFS[d];
+    rows = cfg.rows; cols = cfg.cols; totalMines = cfg.mines;
+    minesLeft = totalMines; flagged = 0; revealed = 0;
+    dead = false; won = false; virgin = true;
+    flagMode = false; updateFlagBtn();
+
+    stopTimer(); secs = 0;
+    $('timer').textContent = '0';
+    $('mine-count').textContent = minesLeft;
+    $('reset-btn').textContent = '🐾';
+
+    board = Array.from({length: rows}, () =>
+      Array.from({length: cols}, () =>
+        ({mine:false, rev:false, flag:false, n:0})));
+
+    applyCellSize();
+    updateProgress();
+    render();
+    overlay.classList.remove('on');
+  }
+
+  // ── Place mines (after first click) ───────────
+  function placeMines(sr, sc) {
     const safe = new Set();
     for (let dr = -1; dr <= 1; dr++)
       for (let dc = -1; dc <= 1; dc++) {
-        const r = safeR + dr, c = safeC + dc;
-        if (r >= 0 && r < rows && c >= 0 && c < cols)
-          safe.add(r * cols + c);
+        const r = sr+dr, c = sc+dc;
+        if (inBounds(r,c)) safe.add(r*cols+c);
       }
-    let placed = 0;
-    while (placed < totalMines) {
-      const idx = Math.floor(Math.random() * rows * cols);
-      const r = Math.floor(idx / cols), c = idx % cols;
-      if (!safe.has(idx) && !board[r][c].mine) {
-        board[r][c].mine = true; placed++;
-      }
+    let p = 0;
+    while (p < totalMines) {
+      const i = Math.floor(Math.random()*rows*cols);
+      const r = Math.floor(i/cols), c = i%cols;
+      if (!safe.has(i) && !board[r][c].mine) { board[r][c].mine = true; p++; }
     }
-    calcNumbers();
-  }
-
-  function calcNumbers() {
     for (let r = 0; r < rows; r++)
       for (let c = 0; c < cols; c++) {
         if (board[r][c].mine) continue;
         let n = 0;
-        neighbors(r, c, (nr, nc) => { if (board[nr][nc].mine) n++; });
-        board[r][c].count = n;
+        eachNeighbor(r,c, (nr,nc) => { if(board[nr][nc].mine) n++; });
+        board[r][c].n = n;
       }
   }
 
-  function neighbors(r, c, fn) {
-    for (let dr = -1; dr <= 1; dr++)
-      for (let dc = -1; dc <= 1; dc++) {
-        if (dr === 0 && dc === 0) continue;
-        const nr = r + dr, nc = c + dc;
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) fn(nr, nc);
+  function inBounds(r,c) { return r>=0 && r<rows && c>=0 && c<cols; }
+
+  function eachNeighbor(r,c,fn) {
+    for (let dr=-1; dr<=1; dr++)
+      for (let dc=-1; dc<=1; dc++) {
+        if (!dr && !dc) continue;
+        const nr=r+dr, nc=c+dc;
+        if (inBounds(nr,nc)) fn(nr,nc);
       }
   }
 
-  // ── Reveal ────────────────────────────────────────
-  function reveal(r, c) {
-    if (gameOver || gameWon) return;
+  // ── Reveal ────────────────────────────────────
+  function doReveal(r,c) {
+    if (dead||won) return;
     const cell = board[r][c];
-    if (cell.revealed || cell.flagged) return;
-
-    if (firstClick) {
-      firstClick = false;
-      placeMines(r, c);
-      startTimer();
-    }
-
-    cell.revealed = true;
-    revealedCount++;
-
-    if (cell.mine) { triggerGameOver(r, c); return; }
-    if (cell.count === 0) floodFill(r, c);
-
-    renderBoard();
-    updateProgress();
-    checkWin();
+    if (cell.rev||cell.flag) return;
+    if (virgin) { virgin=false; placeMines(r,c); startTimer(); }
+    cell.rev = true; revealed++;
+    if (cell.mine) { boom(r,c); return; }
+    if (cell.n===0) flood(r,c);
+    render(); updateProgress(); checkWin();
   }
 
-  function floodFill(r, c) {
+  function flood(r,c) {
     const q = [];
-    neighbors(r, c, (nr, nc) => {
-      const n = board[nr][nc];
-      if (!n.revealed && !n.flagged && !n.mine) {
-        n.revealed = true; revealedCount++;
-        if (n.count === 0) q.push([nr, nc]);
-      }
+    eachNeighbor(r,c,(nr,nc)=>{
+      const n=board[nr][nc];
+      if(!n.rev&&!n.flag&&!n.mine){n.rev=true;revealed++;if(!n.n)q.push([nr,nc]);}
     });
-    q.forEach(([qr, qc]) => floodFill(qr, qc));
+    q.forEach(([qr,qc])=>flood(qr,qc));
   }
 
-  // ── Flag ──────────────────────────────────────────
-  function toggleFlag(r, c) {
-    if (gameOver || gameWon) return;
+  // ── Flag ──────────────────────────────────────
+  function doFlag(r,c) {
+    if (dead||won) return;
     const cell = board[r][c];
-    if (cell.revealed) return;
-    if (!cell.flagged && minesLeft === 0) return;
-    cell.flagged = !cell.flagged;
-    flaggedCount += cell.flagged ? 1 : -1;
-    minesLeft    += cell.flagged ? -1 : 1;
-    mineCountEl.textContent = minesLeft;
-    renderBoard();
-    updateProgress();
-    checkWin();
+    if (cell.rev) return;
+    if (!cell.flag && minesLeft===0) return;
+    cell.flag = !cell.flag;
+    flagged  += cell.flag?1:-1;
+    minesLeft+= cell.flag?-1:1;
+    $('mine-count').textContent = minesLeft;
+    render(); updateProgress(); checkWin();
   }
 
-  // ── Win / Lose ────────────────────────────────────
+  // ── Boom ──────────────────────────────────────
+  function boom(hr,hc) {
+    dead = true; stopTimer(); $('reset-btn').textContent='💀';
+    for (let r=0;r<rows;r++)
+      for (let c=0;c<cols;c++)
+        if(board[r][c].mine&&!board[r][c].flag) board[r][c].rev=true;
+    render();
+    boardEl.querySelectorAll('.cell')[hr*cols+hc].classList.add('mine-hit');
+    setTimeout(()=>showModal(false),450);
+  }
+
+  // ── Win ───────────────────────────────────────
   function checkWin() {
-    const nonMineTotal = rows * cols - totalMines;
-    if (revealedCount >= nonMineTotal) {
-      gameWon = true; stopTimer();
-      resetBtn.textContent = '😎';
-      // Auto-flag remaining mines
-      for (let r = 0; r < rows; r++)
-        for (let c = 0; c < cols; c++)
-          if (board[r][c].mine && !board[r][c].flagged) {
-            board[r][c].flagged = true; flaggedCount++;
-          }
+    if (revealed >= rows*cols - totalMines) {
+      won=true; stopTimer(); $('reset-btn').textContent='😎';
+      for(let r=0;r<rows;r++) for(let c=0;c<cols;c++)
+        if(board[r][c].mine&&!board[r][c].flag){board[r][c].flag=true;flagged++;}
       updateProgress();
-      setTimeout(showWin, 300);
+      setTimeout(()=>showModal(true),250);
     }
   }
 
-  function triggerGameOver(hitR, hitC) {
-    gameOver = true; stopTimer();
-    resetBtn.textContent = '💀';
-    for (let r = 0; r < rows; r++)
-      for (let c = 0; c < cols; c++) {
-        const cell = board[r][c];
-        if (cell.mine && !cell.flagged) cell.revealed = true;
-      }
-    renderBoard();
-    const hitIdx = hitR * cols + hitC;
-    boardEl.querySelectorAll('.cell')[hitIdx].classList.add('mine-hit');
-    setTimeout(showLose, 400);
-  }
+  // ── Timer ─────────────────────────────────────
+  function startTimer(){ticker=setInterval(()=>{secs++;$('timer').textContent=secs;},1000);}
+  function stopTimer(){clearInterval(ticker);ticker=null;}
 
-  // ── Timer ─────────────────────────────────────────
-  function startTimer() {
-    timerHandle = setInterval(() => {
-      timerVal++;
-      timerEl.textContent = timerVal;
-    }, 1000);
-  }
-  function stopTimer() { clearInterval(timerHandle); timerHandle = null; }
-
-  // ── Progress ──────────────────────────────────────
+  // ── Progress ──────────────────────────────────
   function updateProgress() {
-    const pct = totalMines > 0 ? (flaggedCount / totalMines) * 100 : 0;
-    progressFill.style.width = Math.min(pct, 100) + '%';
-    progFlagged.textContent    = flaggedCount;
-    progTotal.textContent      = totalMines;
-    progFlaggedBig.textContent = flaggedCount;
-    progRemaining.textContent  = Math.max(0, totalMines - flaggedCount);
-    progRevealed.textContent   = revealedCount;
+    const pct = totalMines>0 ? (flagged/totalMines)*100 : 0;
+    $('prog-fill').style.width = Math.min(pct,100)+'%';
+    $('p-flagged').textContent  = flagged;
+    $('p-total').textContent    = totalMines;
+    $('ps-flagged').textContent = flagged;
+    $('ps-left').textContent    = Math.max(0,totalMines-flagged);
+    $('ps-revealed').textContent= revealed;
   }
 
-  // ── Render ────────────────────────────────────────
-  function renderBoard() {
-    boardEl.style.gridTemplateColumns = `repeat(${cols}, var(--cell-size))`;
-    boardEl.innerHTML = '';
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const cell = board[r][c];
-        const el = document.createElement('div');
-        el.className = 'cell';
+  // ── Render ────────────────────────────────────
+  function render() {
+    boardEl.style.gridTemplateColumns = `repeat(${cols},var(--cs,34px))`;
+    boardEl.innerHTML='';
+    for (let r=0;r<rows;r++) for(let c=0;c<cols;c++) {
+      const cell = board[r][c];
+      const el = document.createElement('div');
+      el.className='cell';
 
-        if (cell.revealed) {
-          el.classList.add('revealed');
-          if (cell.mine) {
-            el.classList.add('mine-revealed');
-            el.textContent = '🐶';
-          } else if (cell.count > 0) {
-            el.textContent = cell.count;
-            el.classList.add(NUM_COLORS[cell.count]);
-          }
-        } else if (cell.flagged) {
-          el.classList.add('flagged');
-          el.textContent = '🐾';
-        }
-
-        // Mouse events
-        el.addEventListener('click', (e) => {
-          if (flagMode) toggleFlag(r, c);
-          else reveal(r, c);
-        });
-        el.addEventListener('contextmenu', (e) => {
-          e.preventDefault(); toggleFlag(r, c);
-        });
-
-        // Touch events — long press to flag
-        el.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          longPressTimer = setTimeout(() => {
-            longPressTimer = null;
-            toggleFlag(r, c);
-          }, LONG_PRESS_MS);
-        }, { passive: false });
-
-        el.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          if (longPressTimer !== null) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-            if (flagMode) toggleFlag(r, c);
-            else reveal(r, c);
-          }
-        }, { passive: false });
-
-        el.addEventListener('touchmove', (e) => {
-          e.preventDefault();
-          clearTimeout(longPressTimer);
-          longPressTimer = null;
-        }, { passive: false });
-
-        boardEl.appendChild(el);
+      if(cell.rev){
+        el.classList.add('revealed');
+        if(cell.mine){ el.classList.add('mine-all'); el.textContent='🐶'; }
+        else if(cell.n){ el.textContent=cell.n; el.classList.add(NCOLOR[cell.n]); }
+      } else if(cell.flag){
+        el.textContent='🐾';
       }
+
+      // Mouse
+      el.addEventListener('click',()=>{ flagMode?doFlag(r,c):doReveal(r,c); });
+      el.addEventListener('contextmenu',e=>{ e.preventDefault(); doFlag(r,c); });
+
+      // Touch — long press to flag, tap to reveal/flag per mode
+      el.addEventListener('touchstart',e=>{
+        e.preventDefault();
+        longPress=setTimeout(()=>{ longPress=null; doFlag(r,c); },LP);
+      },{passive:false});
+      el.addEventListener('touchend',e=>{
+        e.preventDefault();
+        if(longPress!==null){ clearTimeout(longPress); longPress=null; flagMode?doFlag(r,c):doReveal(r,c); }
+      },{passive:false});
+      el.addEventListener('touchmove',e=>{
+        e.preventDefault(); clearTimeout(longPress); longPress=null;
+      },{passive:false});
+
+      boardEl.appendChild(el);
     }
   }
 
-  // ── Flag toggle (mobile) ──────────────────────────
-  function updateFlagToggle() {
-    if (flagMode) {
-      flagToggle.classList.add('flag-mode');
-      flagToggle.querySelector('.flag-toggle-icon').textContent = '🐾';
-      flagLabel.textContent = 'Flag mode';
-    } else {
-      flagToggle.classList.remove('flag-mode');
-      flagToggle.querySelector('.flag-toggle-icon').textContent = '👆';
-      flagLabel.textContent = 'Reveal mode';
-    }
+  // ── Flag toggle ───────────────────────────────
+  function updateFlagBtn(){
+    if(flagMode){ flagBtn.classList.add('on'); flagIcon.textContent='🐾'; flagLbl.textContent='FLAG MODE'; }
+    else        { flagBtn.classList.remove('on'); flagIcon.textContent='👆'; flagLbl.textContent='REVEAL MODE'; }
   }
 
-  // ── Overlay ───────────────────────────────────────
-  function showWin() {
-    modalIcon.textContent = '🥳';
-    modalTitle.textContent = 'Good boy, you win!';
-    modalTitle.className = 'modal-title win';
-    modalSub.textContent = 'Max is proud. Every mine has been sniffed out.';
-    modalTimeEl.textContent = timerVal;
-    modalRevealEl.textContent = revealedCount;
-    showOverlay();
-    spawnConfetti();
-  }
-  function showLose() {
-    modalIcon.textContent = '🐶';
-    modalTitle.textContent = 'Woof! Found Max.';
-    modalTitle.className = 'modal-title lose';
-    modalSub.textContent = "Max was hiding in that exact spot. He's very sneaky.";
-    modalTimeEl.textContent = timerVal;
-    modalRevealEl.textContent = revealedCount;
-    showOverlay();
-  }
-  function showOverlay() { overlay.classList.add('visible'); }
-  function hideOverlay()  { overlay.classList.remove('visible'); }
-
-  // ── Confetti ──────────────────────────────────────
-  function spawnConfetti() {
-    const emojis = ['🐾','🦴','🐶','🎉','⭐','🐕'];
-    for (let i = 0; i < 50; i++) {
-      setTimeout(() => {
-        const el = document.createElement('div');
-        el.className = 'confetti-piece';
-        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        el.style.left = (Math.random() * 110 - 5) + 'vw';
-        el.style.top  = '-40px';
-        const dur = 2 + Math.random() * 2;
-        el.style.animationDuration = dur + 's';
-        el.style.fontSize = (12 + Math.random() * 18) + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), dur * 1100);
-      }, i * 55);
-    }
+  // ── Modal ─────────────────────────────────────
+  function showModal(isWin) {
+    $('m-icon').textContent   = isWin ? '🥳' : '🐶';
+    $('m-title').textContent  = isWin ? 'Good boy, you win!' : 'Woof! Found Max.';
+    $('m-title').className    = 'modal-title ' + (isWin?'win':'');
+    $('m-sub').textContent    = isWin
+      ? 'Max is proud. Every mine sniffed out.'
+      : "Max was hiding right there. He's sneaky like that.";
+    $('m-time').textContent   = secs;
+    $('m-rev').textContent    = revealed;
+    overlay.classList.add('on');
+    if(isWin) spawnPaws();
   }
 
-  // ── Events ────────────────────────────────────────
-  document.querySelectorAll('.diff-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  // ── Confetti ──────────────────────────────────
+  function spawnPaws(){
+    const e=['🐾','🦴','🐶','⭐','🎉'];
+    for(let i=0;i<45;i++) setTimeout(()=>{
+      const d=document.createElement('div');
+      d.className='paw'; d.textContent=e[~~(Math.random()*e.length)];
+      d.style.left=(Math.random()*110-5)+'vw'; d.style.top='-30px';
+      const dur=1.8+Math.random()*2; d.style.animationDuration=dur+'s';
+      d.style.fontSize=(12+Math.random()*16)+'px';
+      document.body.appendChild(d);
+      setTimeout(()=>d.remove(),dur*1100);
+    },i*60);
+  }
+
+  // ── Events ────────────────────────────────────
+  document.querySelectorAll('.diff-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       newGame(btn.dataset.diff);
     });
   });
 
-  resetBtn.addEventListener('click', () => newGame(currentDiff));
-  playAgain.addEventListener('click', () => { hideOverlay(); newGame(currentDiff); });
-  boardEl.addEventListener('contextmenu', e => e.preventDefault());
+  $('reset-btn').addEventListener('click',()=>newGame(diff));
+  $('play-again').addEventListener('click',()=>newGame(diff));
+  flagBtn.addEventListener('click',()=>{ flagMode=!flagMode; updateFlagBtn(); });
+  boardEl.addEventListener('contextmenu',e=>e.preventDefault());
 
-  flagToggle.addEventListener('click', () => {
-    flagMode = !flagMode;
-    updateFlagToggle();
-  });
+  // Recalc cell size on resize
+  window.addEventListener('resize',()=>{ applyCellSize(); render(); });
 
-  // ── Start ─────────────────────────────────────────
+  // ── Boot ──────────────────────────────────────
   newGame('puppy');
 </script>
 </body>
