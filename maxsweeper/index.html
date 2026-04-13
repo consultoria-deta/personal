@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Maxsweeper 🐾</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Spotify-inspired dark + Max amber */
+    --bg:           #121212;
+    --surface:      #181818;
+    --surface-2:    #1f1f1f;
+    --surface-3:    #242424;
+    --cell-hidden:  #2a2420;
+    --cell-hover:   #3a3028;
+    --cell-rev:     #1a1614;
+    --amber:        #D97706;
+    --amber-bright: #F59E0B;
+    --amber-glow:   rgba(217,119,6,0.25);
+    --amber-dim:    #92400E;
+    --red:          #ef4444;
+    --text:         #ffffff;
+    --text-secondary: #a8a29e;
+    --text-muted:   #6b7280;
+    --border:       #2a2520;
+    --border-light: rgba(255,255,255,0.06);
+    --font:         system-ui, -apple-system, sans-serif;
+    --cell-size:    38px;
+    --cell-font:    15px;
+    --gap:          3px;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 16px 48px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Logo SVG ───────────────────────────────── */
+  .logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 28px;
+    gap: 12px;
+  }
+
+  .logo-svg {
+    width: 72px;
+    height: 72px;
+    filter: drop-shadow(0 0 18px var(--amber-glow));
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .logo-svg:hover { transform: scale(1.08) rotate(-3deg); }
+
+  .logo-title {
+    display: flex;
+    align-items: baseline;
+    gap: 1px;
+    font-size: clamp(28px, 7vw, 44px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .logo-title .t1 { color: var(--text); }
+  .logo-title .t2 { color: var(--amber); }
+
+  .logo-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* ── Difficulty pills ───────────────────────── */
+  .diff-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .diff-btn {
+    padding: 8px 18px;
+    border-radius: 9999px;
+    border: 1.5px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--font);
+  }
+  .diff-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .diff-btn.active {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: #000;
+  }
+
+  /* ── HUD ────────────────────────────────────── */
+  .hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-light);
+    box-shadow: rgba(0,0,0,0.5) 0px 8px 24px;
+  }
+
+  .hud-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 56px;
+    gap: 2px;
+  }
+  .hud-val {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .hud-val.amber { color: var(--amber); }
+  .hud-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .reset-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--border-light);
+    background: var(--surface-2);
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.34,1.56,0.64,1);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .reset-btn:hover {
+    background: var(--amber-glow);
+    border-color: var(--amber);
+    transform: scale(1.1) rotate(10deg);
+  }
+  .reset-btn:active { transform: scale(0.92); }
+
+  /* ── Flag mode toggle (mobile) ──────────────── */
+  .flag-toggle-wrap {
+    display: none;
+    margin-bottom: 14px;
+    justify-content: center;
+  }
+  @media (hover: none) {
+    .flag-toggle-wrap { display: flex; }
+  }
+
+  .flag-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1.5px solid var(--border-light);
+    border-radius: 9999px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--font);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .flag-toggle.flag-mode {
+    background: var(--amber-glow);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .flag-toggle-icon { font-size: 18px; }
+
+  /* ── Board ──────────────────────────────────── */
+  .board-outer {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .board-wrap {
+    display: inline-block;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow:
+      rgba(0,0,0,0.5) 0px 8px 24px,
+      rgba(0,0,0,0.3) 0px 2px 8px,
+      0 0 0 1px var(--border-light);
+    min-width: min-content;
+  }
+
+  #board {
+    display: grid;
+    gap: var(--gap);
+    user-select: none;
+    touch-action: none;
+  }
+
+  .cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    border-radius: 6px;
+    background: var(--cell-hidden);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--cell-font);
+    font-weight: 900;
+    cursor: pointer;
+    transition: background 0.1s, transform 0.08s;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.03);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+    border-radius: 5px;
+    pointer-events: none;
+  }
+
+  .cell:hover:not(.revealed):not([data-state="dead"]) {
+    background: var(--cell-hover);
+    transform: scale(1.07);
+    z-index: 2;
+    border-color: rgba(217,119,6,0.2);
+  }
+
+  .cell.revealed {
+    background: var(--cell-rev);
+    cursor: default;
+    border-color: rgba(255,255,255,0.02);
+  }
+  .cell.revealed::before { display: none; }
+
+  .cell.flagged { font-size: calc(var(--cell-size) * 0.5); }
+  .cell.flagged::before { display: none; }
+
+  .cell.mine-hit {
+    background: #7f1d1d !important;
+    border-color: var(--red) !important;
+    animation: explode 0.4s ease;
+  }
+  .cell.mine-revealed {
+    background: #1c1210 !important;
+    opacity: 0.8;
+  }
+  .cell.wrong-flag {
+    background: #7f1d1d !important;
+  }
+
+  /* Number colors — warm-adjusted for dark bg */
+  .n1 { color: #60a5fa; }
+  .n2 { color: #4ade80; }
+  .n3 { color: #f87171; }
+  .n4 { color: #818cf8; }
+  .n5 { color: #fb923c; }
+  .n6 { color: #34d399; }
+  .n7 { color: #f0abfc; }
+  .n8 { color: #94a3b8; }
+
+  /* ── Mine progress section ──────────────────── */
+  .mine-progress {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    border: 1px solid var(--border-light);
+    box-shadow: rgba(0,0,0,0.3) 0px 4px 12px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .progress-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .progress-nums {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+  .progress-nums span { color: var(--amber); }
+
+  .progress-track {
+    height: 6px;
+    background: var(--surface-3);
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+    border-radius: 9999px;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  .progress-items {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .progress-item {
+    flex: 1;
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border-light);
+  }
+  .progress-item-icon { font-size: 18px; flex-shrink: 0; }
+  .progress-item-info { display: flex; flex-direction: column; gap: 1px; }
+  .progress-item-val {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .progress-item-val.amber { color: var(--amber); }
+  .progress-item-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── Win/Lose overlay ───────────────────────── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.82);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .overlay.visible { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 36px 40px;
+    text-align: center;
+    box-shadow:
+      rgba(0,0,0,0.5) 0px 24px 64px,
+      0 0 0 1px var(--border-light);
+    max-width: 320px;
+    width: 90%;
+    transform: scale(0.88);
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .overlay.visible .modal { transform: scale(1); }
+
+  .modal-icon { font-size: 56px; margin-bottom: 14px; display: block; line-height: 1; }
+  .modal-title {
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .modal-title.win { color: var(--amber); }
+  .modal-title.lose { color: var(--text); }
+  .modal-sub {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .modal-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 14px 0;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+  }
+  .modal-stat-val {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .modal-stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .play-again {
+    background: var(--amber);
+    color: #000;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .play-again:hover { background: var(--amber-bright); transform: translateY(-1px); }
+  .play-again:active { transform: translateY(0); }
+
+  /* ── Confetti ───────────────────────────────── */
+  .confetti-piece {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-30px) rotate(0deg) scale(1); opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateY(105vh) rotate(800deg) scale(0.4); opacity: 0; }
+  }
+
+  /* ── Animations ─────────────────────────────── */
+  @keyframes explode {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.3); }
+    60%  { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes revealPop {
+    0%   { transform: scale(0.85); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .cell.just-revealed { animation: revealPop 0.12s ease-out; }
+
+  /* ── Footer ─────────────────────────────────── */
+  footer {
+    margin-top: 28px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+  footer span { color: var(--amber); }
+
+  /* ── Responsive ─────────────────────────────── */
+  @media (max-width: 420px) {
+    :root { --cell-size: 30px; --cell-font: 12px; --gap: 2px; }
+    body { padding: 16px 10px 40px; }
+    .hud { padding: 12px 14px; }
+    .logo-svg { width: 56px; height: 56px; }
+    .mine-progress { padding: 12px 14px; }
+    .progress-item { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Logo ──────────────────────────────────────────── -->
+<div class="logo-wrap">
+  <!-- Max SVG logo: black dog face, amber eyes -->
+  <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Max the dog logo">
+    <!-- Left ear -->
+    <ellipse cx="22" cy="42" rx="14" ry="22" fill="#1a1210" transform="rotate(-12, 22, 42)"/>
+    <ellipse cx="22" cy="44" rx="10" ry="17" fill="#2a1e16" transform="rotate(-12, 22, 44)"/>
+    <!-- Right ear -->
+    <ellipse cx="78" cy="42" rx="14" ry="22" fill="#1a1210" transform="rotate(12, 78, 42)"/>
+    <ellipse cx="78" cy="44" rx="10" ry="17" fill="#2a1e16" transform="rotate(12, 78, 44)"/>
+    <!-- Head -->
+    <circle cx="50" cy="52" r="34" fill="#1a1210"/>
+    <!-- Fur texture -->
+    <circle cx="50" cy="52" r="34" fill="url(#furGrad)" opacity="0.4"/>
+    <!-- Forehead highlight -->
+    <ellipse cx="50" cy="32" rx="16" ry="10" fill="#2d231a" opacity="0.6"/>
+    <!-- Left eye white -->
+    <circle cx="37" cy="48" r="10" fill="#1c1410"/>
+    <circle cx="37" cy="48" r="8" fill="#0d0a08"/>
+    <!-- Left iris -->
+    <circle cx="37" cy="48" r="6.5" fill="#D97706"/>
+    <circle cx="37" cy="48" r="4.5" fill="#92400E"/>
+    <circle cx="37" cy="48" r="3" fill="#0d0a08"/>
+    <!-- Left eye shine -->
+    <circle cx="39.5" cy="45.5" r="1.8" fill="rgba(255,255,255,0.85)"/>
+    <circle cx="35.5" cy="50" r="0.9" fill="rgba(255,255,255,0.4)"/>
+    <!-- Right eye white -->
+    <circle cx="63" cy="48" r="10" fill="#1c1410"/>
+    <circle cx="63" cy="48" r="8" fill="#0d0a08"/>
+    <!-- Right iris -->
+    <circle cx="63" cy="48" r="6.5" fill="#D97706"/>
+    <circle cx="63" cy="48" r="4.5" fill="#92400E"/>
+    <circle cx="63" cy="48" r="3" fill="#0d0a08"/>
+    <!-- Right eye shine -->
+    <circle cx="65.5" cy="45.5" r="1.8" fill="rgba(255,255,255,0.85)"/>
+    <circle cx="61.5" cy="50" r="0.9" fill="rgba(255,255,255,0.4)"/>
+    <!-- Snout area -->
+    <ellipse cx="50" cy="64" rx="16" ry="11" fill="#231915"/>
+    <!-- Nose -->
+    <ellipse cx="50" cy="60" rx="7" ry="5" fill="#0d0a08"/>
+    <ellipse cx="50" cy="59" rx="5.5" ry="3.5" fill="#1a1210"/>
+    <!-- Nose shine -->
+    <ellipse cx="48" cy="57.5" rx="2" ry="1.2" fill="rgba(255,255,255,0.2)"/>
+    <!-- Mouth -->
+    <path d="M 43 66 Q 50 71 57 66" stroke="#0d0a08" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- White chest patch -->
+    <ellipse cx="50" cy="80" rx="8" ry="5" fill="#2a211a" opacity="0.5"/>
+    <defs>
+      <radialGradient id="furGrad" cx="50%" cy="30%" r="60%">
+        <stop offset="0%" stop-color="#3d2e22"/>
+        <stop offset="100%" stop-color="#0d0a08"/>
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <div class="logo-title">
+    <span class="t1">Max</span><span class="t2">sweeper</span>
+  </div>
+  <div class="logo-sub">feat. Max · right-click or hold to flag</div>
+</div>
+
+<!-- ── Difficulty ────────────────────────────────────── -->
+<div class="diff-row">
+  <button class="diff-btn active" data-diff="puppy">🐶 Puppy</button>
+  <button class="diff-btn" data-diff="doggo">🐕 Doggo</button>
+  <button class="diff-btn" data-diff="max">💀 Max Mode</button>
+</div>
+
+<!-- ── HUD ───────────────────────────────────────────── -->
+<div class="hud">
+  <div class="hud-stat">
+    <div class="hud-val amber" id="mine-count">10</div>
+    <div class="hud-label">Mines</div>
+  </div>
+  <button class="reset-btn" id="reset-btn" title="New game">🐾</button>
+  <div class="hud-stat">
+    <div class="hud-val" id="timer">0</div>
+    <div class="hud-label">Seconds</div>
+  </div>
+</div>
+
+<!-- ── Flag toggle (touch devices) ──────────────────── -->
+<div class="flag-toggle-wrap">
+  <button class="flag-toggle" id="flag-toggle">
+    <span class="flag-toggle-icon">👆</span>
+    <span id="flag-toggle-label">Reveal mode</span>
+  </button>
+</div>
+
+<!-- ── Board ─────────────────────────────────────────── -->
+<div class="board-outer">
+  <div class="board-wrap">
+    <div id="board"></div>
+  </div>
+</div>
+
+<!-- ── Mine progress ─────────────────────────────────── -->
+<div class="mine-progress">
+  <div class="progress-header">
+    <span class="progress-label">Mines discovered</span>
+    <span class="progress-nums"><span id="prog-flagged">0</span> / <span id="prog-total">10</span></span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="progress-items">
+    <div class="progress-item">
+      <span class="progress-item-icon">🐾</span>
+      <div class="progress-item-info">
+        <div class="progress-item-val amber" id="prog-flagged-big">0</div>
+        <div class="progress-item-label">Flagged</div>
+      </div>
+    </div>
+    <div class="progress-item">
+      <span class="progress-item-icon">🐶</span>
+      <div class="progress-item-info">
+        <div class="progress-item-val" id="prog-remaining-big">10</div>
+        <div class="progress-item-label">Remaining</div>
+      </div>
+    </div>
+    <div class="progress-item">
+      <span class="progress-item-icon">⏱</span>
+      <div class="progress-item-info">
+        <div class="progress-item-val" id="prog-revealed-big">0</div>
+        <div class="progress-item-label">Revealed</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Win/Lose overlay ──────────────────────────────── -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <span class="modal-icon" id="modal-icon">🐶</span>
+    <div class="modal-title" id="modal-title">You found Max!</div>
+    <div class="modal-sub" id="modal-sub">Max was hiding all along.</div>
+    <div class="modal-stats">
+      <div>
+        <div class="modal-stat-val" id="modal-time">0</div>
+        <div class="modal-stat-label">Seconds</div>
+      </div>
+      <div>
+        <div class="modal-stat-val" id="modal-revealed">0</div>
+        <div class="modal-stat-label">Revealed</div>
+      </div>
+    </div>
+    <button class="play-again" id="play-again">Play Again 🐾</button>
+  </div>
+</div>
+
+<footer>Made for <span>Max</span> 🐾 · a very good boy</footer>
+
+<script>
+  // ── Config ─────────────────────────────────────────
+  const DIFFICULTIES = {
+    puppy: { rows: 9,  cols: 9,  mines: 10 },
+    doggo: { rows: 16, cols: 16, mines: 40 },
+    max:   { rows: 16, cols: 30, mines: 99 },
+  };
+  const NUM_COLORS = ['','n1','n2','n3','n4','n5','n6','n7','n8'];
+
+  // ── State ──────────────────────────────────────────
+  let board, rows, cols, totalMines;
+  let minesLeft, flaggedCount, revealedCount;
+  let gameOver, gameWon, firstClick;
+  let timerVal, timerHandle;
+  let currentDiff = 'puppy';
+  let flagMode = false; // mobile flag toggle
+
+  // Long press support
+  let longPressTimer = null;
+  const LONG_PRESS_MS = 450;
+
+  // ── DOM ────────────────────────────────────────────
+  const boardEl        = document.getElementById('board');
+  const mineCountEl    = document.getElementById('mine-count');
+  const timerEl        = document.getElementById('timer');
+  const resetBtn       = document.getElementById('reset-btn');
+  const overlay        = document.getElementById('overlay');
+  const modalIcon      = document.getElementById('modal-icon');
+  const modalTitle     = document.getElementById('modal-title');
+  const modalSub       = document.getElementById('modal-sub');
+  const modalTimeEl    = document.getElementById('modal-time');
+  const modalRevealEl  = document.getElementById('modal-revealed');
+  const playAgain      = document.getElementById('play-again');
+  const flagToggle     = document.getElementById('flag-toggle');
+  const flagLabel      = document.getElementById('flag-toggle-label');
+  const progFlagged    = document.getElementById('prog-flagged');
+  const progTotal      = document.getElementById('prog-total');
+  const progressFill   = document.getElementById('progress-fill');
+  const progFlaggedBig = document.getElementById('prog-flagged-big');
+  const progRemaining  = document.getElementById('prog-remaining-big');
+  const progRevealed   = document.getElementById('prog-revealed-big');
+
+  // ── Init ───────────────────────────────────────────
+  function newGame(diff) {
+    currentDiff = diff;
+    const cfg = DIFFICULTIES[diff];
+    rows = cfg.rows; cols = cfg.cols; totalMines = cfg.mines;
+    minesLeft = totalMines; flaggedCount = 0; revealedCount = 0;
+    gameOver = false; gameWon = false; firstClick = true;
+
+    stopTimer(); timerVal = 0;
+    timerEl.textContent = '0';
+    mineCountEl.textContent = minesLeft;
+    resetBtn.textContent = '🐾';
+    flagMode = false;
+    updateFlagToggle();
+
+    board = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () =>
+        ({ mine: false, revealed: false, flagged: false, count: 0 })
+      )
+    );
+
+    updateProgress();
+    renderBoard();
+    hideOverlay();
+  }
+
+  // ── Mines ──────────────────────────────────────────
+  function placeMines(safeR, safeC) {
+    const safe = new Set();
+    for (let dr = -1; dr <= 1; dr++)
+      for (let dc = -1; dc <= 1; dc++) {
+        const r = safeR + dr, c = safeC + dc;
+        if (r >= 0 && r < rows && c >= 0 && c < cols)
+          safe.add(r * cols + c);
+      }
+    let placed = 0;
+    while (placed < totalMines) {
+      const idx = Math.floor(Math.random() * rows * cols);
+      const r = Math.floor(idx / cols), c = idx % cols;
+      if (!safe.has(idx) && !board[r][c].mine) {
+        board[r][c].mine = true; placed++;
+      }
+    }
+    calcNumbers();
+  }
+
+  function calcNumbers() {
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++) {
+        if (board[r][c].mine) continue;
+        let n = 0;
+        neighbors(r, c, (nr, nc) => { if (board[nr][nc].mine) n++; });
+        board[r][c].count = n;
+      }
+  }
+
+  function neighbors(r, c, fn) {
+    for (let dr = -1; dr <= 1; dr++)
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) fn(nr, nc);
+      }
+  }
+
+  // ── Reveal ────────────────────────────────────────
+  function reveal(r, c) {
+    if (gameOver || gameWon) return;
+    const cell = board[r][c];
+    if (cell.revealed || cell.flagged) return;
+
+    if (firstClick) {
+      firstClick = false;
+      placeMines(r, c);
+      startTimer();
+    }
+
+    cell.revealed = true;
+    revealedCount++;
+
+    if (cell.mine) { triggerGameOver(r, c); return; }
+    if (cell.count === 0) floodFill(r, c);
+
+    renderBoard();
+    updateProgress();
+    checkWin();
+  }
+
+  function floodFill(r, c) {
+    const q = [];
+    neighbors(r, c, (nr, nc) => {
+      const n = board[nr][nc];
+      if (!n.revealed && !n.flagged && !n.mine) {
+        n.revealed = true; revealedCount++;
+        if (n.count === 0) q.push([nr, nc]);
+      }
+    });
+    q.forEach(([qr, qc]) => floodFill(qr, qc));
+  }
+
+  // ── Flag ──────────────────────────────────────────
+  function toggleFlag(r, c) {
+    if (gameOver || gameWon) return;
+    const cell = board[r][c];
+    if (cell.revealed) return;
+    if (!cell.flagged && minesLeft === 0) return;
+    cell.flagged = !cell.flagged;
+    flaggedCount += cell.flagged ? 1 : -1;
+    minesLeft    += cell.flagged ? -1 : 1;
+    mineCountEl.textContent = minesLeft;
+    renderBoard();
+    updateProgress();
+    checkWin();
+  }
+
+  // ── Win / Lose ────────────────────────────────────
+  function checkWin() {
+    const nonMineTotal = rows * cols - totalMines;
+    if (revealedCount >= nonMineTotal) {
+      gameWon = true; stopTimer();
+      resetBtn.textContent = '😎';
+      // Auto-flag remaining mines
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+          if (board[r][c].mine && !board[r][c].flagged) {
+            board[r][c].flagged = true; flaggedCount++;
+          }
+      updateProgress();
+      setTimeout(showWin, 300);
+    }
+  }
+
+  function triggerGameOver(hitR, hitC) {
+    gameOver = true; stopTimer();
+    resetBtn.textContent = '💀';
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++) {
+        const cell = board[r][c];
+        if (cell.mine && !cell.flagged) cell.revealed = true;
+      }
+    renderBoard();
+    const hitIdx = hitR * cols + hitC;
+    boardEl.querySelectorAll('.cell')[hitIdx].classList.add('mine-hit');
+    setTimeout(showLose, 400);
+  }
+
+  // ── Timer ─────────────────────────────────────────
+  function startTimer() {
+    timerHandle = setInterval(() => {
+      timerVal++;
+      timerEl.textContent = timerVal;
+    }, 1000);
+  }
+  function stopTimer() { clearInterval(timerHandle); timerHandle = null; }
+
+  // ── Progress ──────────────────────────────────────
+  function updateProgress() {
+    const pct = totalMines > 0 ? (flaggedCount / totalMines) * 100 : 0;
+    progressFill.style.width = Math.min(pct, 100) + '%';
+    progFlagged.textContent    = flaggedCount;
+    progTotal.textContent      = totalMines;
+    progFlaggedBig.textContent = flaggedCount;
+    progRemaining.textContent  = Math.max(0, totalMines - flaggedCount);
+    progRevealed.textContent   = revealedCount;
+  }
+
+  // ── Render ────────────────────────────────────────
+  function renderBoard() {
+    boardEl.style.gridTemplateColumns = `repeat(${cols}, var(--cell-size))`;
+    boardEl.innerHTML = '';
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const cell = board[r][c];
+        const el = document.createElement('div');
+        el.className = 'cell';
+
+        if (cell.revealed) {
+          el.classList.add('revealed');
+          if (cell.mine) {
+            el.classList.add('mine-revealed');
+            el.textContent = '🐶';
+          } else if (cell.count > 0) {
+            el.textContent = cell.count;
+            el.classList.add(NUM_COLORS[cell.count]);
+          }
+        } else if (cell.flagged) {
+          el.classList.add('flagged');
+          el.textContent = '🐾';
+        }
+
+        // Mouse events
+        el.addEventListener('click', (e) => {
+          if (flagMode) toggleFlag(r, c);
+          else reveal(r, c);
+        });
+        el.addEventListener('contextmenu', (e) => {
+          e.preventDefault(); toggleFlag(r, c);
+        });
+
+        // Touch events — long press to flag
+        el.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          longPressTimer = setTimeout(() => {
+            longPressTimer = null;
+            toggleFlag(r, c);
+          }, LONG_PRESS_MS);
+        }, { passive: false });
+
+        el.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          if (longPressTimer !== null) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+            if (flagMode) toggleFlag(r, c);
+            else reveal(r, c);
+          }
+        }, { passive: false });
+
+        el.addEventListener('touchmove', (e) => {
+          e.preventDefault();
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }, { passive: false });
+
+        boardEl.appendChild(el);
+      }
+    }
+  }
+
+  // ── Flag toggle (mobile) ──────────────────────────
+  function updateFlagToggle() {
+    if (flagMode) {
+      flagToggle.classList.add('flag-mode');
+      flagToggle.querySelector('.flag-toggle-icon').textContent = '🐾';
+      flagLabel.textContent = 'Flag mode';
+    } else {
+      flagToggle.classList.remove('flag-mode');
+      flagToggle.querySelector('.flag-toggle-icon').textContent = '👆';
+      flagLabel.textContent = 'Reveal mode';
+    }
+  }
+
+  // ── Overlay ───────────────────────────────────────
+  function showWin() {
+    modalIcon.textContent = '🥳';
+    modalTitle.textContent = 'Good boy, you win!';
+    modalTitle.className = 'modal-title win';
+    modalSub.textContent = 'Max is proud. Every mine has been sniffed out.';
+    modalTimeEl.textContent = timerVal;
+    modalRevealEl.textContent = revealedCount;
+    showOverlay();
+    spawnConfetti();
+  }
+  function showLose() {
+    modalIcon.textContent = '🐶';
+    modalTitle.textContent = 'Woof! Found Max.';
+    modalTitle.className = 'modal-title lose';
+    modalSub.textContent = "Max was hiding in that exact spot. He's very sneaky.";
+    modalTimeEl.textContent = timerVal;
+    modalRevealEl.textContent = revealedCount;
+    showOverlay();
+  }
+  function showOverlay() { overlay.classList.add('visible'); }
+  function hideOverlay()  { overlay.classList.remove('visible'); }
+
+  // ── Confetti ──────────────────────────────────────
+  function spawnConfetti() {
+    const emojis = ['🐾','🦴','🐶','🎉','⭐','🐕'];
+    for (let i = 0; i < 50; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = (Math.random() * 110 - 5) + 'vw';
+        el.style.top  = '-40px';
+        const dur = 2 + Math.random() * 2;
+        el.style.animationDuration = dur + 's';
+        el.style.fontSize = (12 + Math.random() * 18) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), dur * 1100);
+      }, i * 55);
+    }
+  }
+
+  // ── Events ────────────────────────────────────────
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      newGame(btn.dataset.diff);
+    });
+  });
+
+  resetBtn.addEventListener('click', () => newGame(currentDiff));
+  playAgain.addEventListener('click', () => { hideOverlay(); newGame(currentDiff); });
+  boardEl.addEventListener('contextmenu', e => e.preventDefault());
+
+  flagToggle.addEventListener('click', () => {
+    flagMode = !flagMode;
+    updateFlagToggle();
+  });
+
+  // ── Start ─────────────────────────────────────────
+  newGame('puppy');
+</script>
+</body>
+</html>
